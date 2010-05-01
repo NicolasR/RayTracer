@@ -43,14 +43,13 @@ QImage RayTracer::render (const Vec3Df & camPos,
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
     
     Scene * scene = Scene::getInstance ();
-    const BoundingBox & bbox = scene->getBoundingBox ();
-    const Vec3Df & minBb = bbox.getMin ();
-    const Vec3Df & maxBb = bbox.getMax ();
-    const Vec3Df rangeBb = maxBb-minBb;
+    std::vector<Object> objects = scene->getObjects();
+    //const BoundingBox & bbox = scene->getBoundingBox ();
+
     
     for (unsigned int i = 0; i < screenWidth; i++)
         for (unsigned int j = 0; j < screenHeight; j++) {
-            float tanX = tan (fieldOfView);
+	    float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
             Vec3Df stepX = (float (i) - screenWidth/2.f)/screenWidth * tanX * rightVector;
             Vec3Df stepY = (float (j) - screenHeight/2.f)/screenHeight * tanY * upVector;
@@ -59,13 +58,29 @@ QImage RayTracer::render (const Vec3Df & camPos,
             dir.normalize ();
             Ray ray (camPos, dir);
             Vec3Df intersectionPoint;
-            bool hasIntersection = ray.intersect (bbox, intersectionPoint);
-            Vec3Df c (backgroundColor);
-            if (hasIntersection)
-                c = 255.f * ((intersectionPoint - minBb) / rangeBb);
-            image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
-                                                       clamp (c[1], 0, 255),
-                                                       clamp (c[2], 0, 255)));
-        }
+	    
+	    for (std::vector<Object>::iterator k = objects.begin(); k!= objects.end();++k)
+	    {
+		Mesh mesh = (*k).getMesh();
+		std::vector<Triangle> triangles = mesh.getTriangles();
+		std::vector<Vertex> vertices = mesh.getVertices();
+		const BoundingBox & bbox = (*k).getBoundingBox ();
+    		const Vec3Df & minBb = bbox.getMin ();
+    		const Vec3Df & maxBb = bbox.getMax ();
+    		const Vec3Df rangeBb = maxBb-minBb;
+		/*for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
+		{*/
+		     
+            	     //bool hasIntersection = ray.intersect (bbox, intersectionPoint);
+	    	     bool hasIntersection = ray.intersect (bbox, intersectionPoint);
+            	     Vec3Df c (backgroundColor);
+            	     if (hasIntersection)
+                	     c = 255.f * ((intersectionPoint - minBb) / rangeBb);
+            	     image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
+                                                       		    clamp (c[1], 0, 255),
+                                                       		    clamp (c[2], 0, 255)));
+		//}
+            }
+	}
     return image;
 }

@@ -27,7 +27,7 @@ public:
     inline Vec3Df & getDirection () { return direction; }
 
     bool intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const;
-    
+    bool intersect_real (const BoundingBox & bbox, Vec3Df & intersectionPoint) const;
 private:
     Vec3Df origin;
     Vec3Df direction;

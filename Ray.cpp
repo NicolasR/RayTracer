@@ -61,3 +61,7 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
         }
     return (true);			
 }
+bool Ray::intersect_real (const BoundingBox & bbox, Vec3Df & intersectionPoint) const {
+
+}
+
