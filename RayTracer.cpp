@@ -44,10 +44,16 @@ QImage RayTracer::render (const Vec3Df & camPos,
     
     Scene * scene = Scene::getInstance ();
     std::vector<Object> objects = scene->getObjects();
-    //const BoundingBox & bbox = scene->getBoundingBox ();
+    const BoundingBox & bbox = scene->getBoundingBox ();
+    const Vec3Df & minBb = bbox.getMin ();
+    const Vec3Df & maxBb = bbox.getMax ();
+    const Vec3Df rangeBb = maxBb-minBb;
+    Vec3Df c (backgroundColor);
 
-    
     for (unsigned int i = 0; i < screenWidth; i++)
+    {
+
+    std::cout<<i<<"\n";	
         for (unsigned int j = 0; j < screenHeight; j++) {
 	    float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
@@ -58,30 +64,47 @@ QImage RayTracer::render (const Vec3Df & camPos,
             dir.normalize ();
             Ray ray (camPos, dir);
             Vec3Df intersectionPoint;
-	    
+	    float Px, Py, Pz; Vec3Df test;
+    	    float tmin=777, t;
+    	    bool found = false;
+
 	    for (std::vector<Object>::iterator k = objects.begin(); k!= objects.end();k++)
 	    {
-		Mesh mesh = (*k).getMesh();
+		const Mesh & mesh = (*k).getMesh();
 		std::vector<Triangle> triangles = mesh.getTriangles();
 		std::vector<Vertex> vertices = mesh.getVertices();
-		const BoundingBox & bbox = (*k).getBoundingBox ();
-    		const Vec3Df & minBb = bbox.getMin ();
-    		const Vec3Df & maxBb = bbox.getMax ();
-    		const Vec3Df rangeBb = maxBb-minBb;
 		for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
 		{
 		     
             	     //bool hasIntersection = ray.intersect (bbox, intersectionPoint);
-	    	     bool hasIntersection = ray.intersect_real (mesh, *l,intersectionPoint);
-            	     Vec3Df c (backgroundColor);
-            	     if (hasIntersection)
-                	     c = 255.f * ((intersectionPoint - minBb) / rangeBb);
-            	     image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
-                                                       		    clamp (c[1], 0, 255),
-                                                       		    clamp (c[2], 0, 255)));
+		     const Vec3Df & A = mesh.getVertices().at((*l).getVertex(0)).getPos();
+		     const Vec3Df & B = mesh.getVertices().at((*l).getVertex(1)).getPos();
+		     const Vec3Df & C = mesh.getVertices().at((*l).getVertex(2)).getPos();
+	    	     bool hasIntersection = ray.intersect_real (A,B,C,intersectionPoint,t);
+            	     if (hasIntersection && t <tmin)
+		     {
+			tmin = t;		
+			test = intersectionPoint;
+			found = true;	
+		     }
+            	     
 		}
-		std::cout<<"Fin iteration Triangles\n";
             }
+	    if (found)
+	    {
+	      Px = camPos[0] + tmin * dir[0];
+	      Py = camPos[1] + tmin * dir[1];
+	      Pz = camPos[2] + tmin * dir[2];
+
+              c = 255.f * ((Vec3Df(Px, Py, Pz) - minBb) / rangeBb);
+	      image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
+                                                       	   clamp (c[1], 0, 255),
+                                                       	   clamp (c[2], 0, 255)));
+	      found = false;
+	    }
+	  //std::cout<<j<<"\n";
 	}
+	
+    }
     return image;
 }

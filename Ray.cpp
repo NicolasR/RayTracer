@@ -61,40 +61,57 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
         }
     return (true);			
 }
-bool Ray::intersect_real (Mesh mesh, Triangle triangle, Vec3Df & intersectionPoint) const {
-	Vec3Df RayOrigin = this->getOrigin();
-	Vec3Df RayDirection = this->getDirection();
-	Vec3Df A = mesh.getVertices().at(triangle.getVertex(0)).getPos();
-	Vec3Df B = mesh.getVertices().at(triangle.getVertex(1)).getPos();
-	Vec3Df C = mesh.getVertices().at(triangle.getVertex(2)).getPos();
-	Vec3Df AB = Vec3Df::segment(A,B);
-	Vec3Df AC = Vec3Df::segment(A,C);
+bool Ray::intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoint, float & t) const {
+	Vec3Df Ro = this->getOrigin();
+	Vec3Df Rd = this->getDirection();
 
-	//Calcul du produit vectoriel AB,AC pour obtenir la normale du plan
-	Vec3Df normale = Vec3Df::crossProduct(AB,AC);
-
-	//On résout un système à une équation pour trouver le point d'intersection entre le rayon et le plan que l'on appelera M
-	int d = -(normale[0]*A[0] + normale[1]*A[1]+normale[2]*A[2]);
-	int k = (-normale[0] * RayOrigin[0] - normale[1] * RayOrigin[1] - normale[2] * RayOrigin[2] - d)/
-		(normale[0] * RayDirection[0] + normale[1] * RayDirection[1] + normale[2] * RayDirection[2]);
-
-	int Mx = k * RayDirection[0] + RayOrigin[0];
-	int My = k * RayDirection[1] + RayOrigin[1];
-	int Mz = k * RayDirection[2] + RayDirection[2];
-	//std::cout<<"Mx: "<<Mx<<" My: "<<My<<" Mz:"<<Mz<<"\n";
-	Vec3Df M = Vec3Df(Mx, My, Mz);
-
-	//On cherche si M appartient au Triangle, on résout le système
-	int l = AC[2] * (AC[1] - M[1]) / ( AC[2] * AB[1] + AC[1] * (-AB[2] + M[2] - A[2]));
-	int q = - (l * AB[2] + A[2] - M[2])/AC[2];
-	if (l>0 && q>0)
+	float beta = 0.0;
+	float gamma = 0.0;
+	t = calcBar(A,B,C,beta,gamma);
+	float alpha = 1 - beta - gamma;
+	if (beta + gamma < 1 && beta > 0 && gamma > 0)
 	{
-	  intersectionPoint = M;
+	  float Px = Ro[0] + t * Rd[0];
+	  float Py = Ro[1] + t * Rd[1];
+	  float Pz = Ro[2] + t * Rd[2];
+	  //std::cout<<"beta: "<<beta<<" gamma: "<<gamma<<"\n";
+//	  std::cout<<"t: "<<t<<"\n";
+//std::cout<<"Px: "<<Px<<" Py: "<<Py<<" Pz:"<<Pz<<"\n";
+	  intersectionPoint = Vec3Df(Px, Py, Pz);
 	  return true;
-	}
+	}	
 	else
-	{
 	  return false;
-	}
 }
 
+float Ray::calcBar(Vec3Df A, Vec3Df B, Vec3Df C, float & beta, float & gamma) const{
+	Vec3Df Ro = this->getOrigin();
+	Vec3Df Rd = this->getDirection();
+	Vec3Df AB = Vec3Df::segment(B,A);
+	Vec3Df AC = Vec3Df::segment(C,A);
+	Vec3Df ARo = Vec3Df::segment(Ro,A);
+
+	float dA = (AB[0] * (AC[1] * Rd[2] - Rd[1] * AC[2]))
+		 - (AB[1] * (AC[0] * Rd[2] - Rd[0] * AC[2]))
+		 + (AB[2] * (AC[0] * Rd[1] - Rd[0] * AC[1]));
+
+	beta = (
+	          (ARo[0] * (AC[1] * Rd[2] - Rd[1] * AC[2]))
+		- (ARo[1] * (AC[0] * Rd[2] - Rd[0] * AC[2]))
+		+ (ARo[2] * (AC[0] * Rd[1] - Rd[0] * AC[1]))
+	       )/dA;
+	
+	gamma = ( 
+		  (AB[0] * (ARo[1] * Rd[2] - Rd[1] * ARo[2]))
+		- (AB[1] * (ARo[0] * Rd[2] - Rd[0] * ARo[2]))
+		+ (AB[2] * (ARo[0] * Rd[1] - Rd[0] * ARo[1]))
+		)/dA;
+
+	float t = (
+		    (AB[0] * (AC[1] * ARo[2] - ARo[1] * AC[2]))
+		  - (AB[1] * (AC[0] * ARo[2] - ARo[0] * AC[2]))
+		  + (AB[2] * (AC[0] * ARo[1] - ARo[0] * AC[1]))
+		  )/dA;
+
+	return t;
+}
