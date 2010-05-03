@@ -61,7 +61,40 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
         }
     return (true);			
 }
-bool Ray::intersect_real (const BoundingBox & bbox, Vec3Df & intersectionPoint) const {
+bool Ray::intersect_real (Mesh mesh, Triangle triangle, Vec3Df & intersectionPoint) const {
+	Vec3Df RayOrigin = this->getOrigin();
+	Vec3Df RayDirection = this->getDirection();
+	Vec3Df A = mesh.getVertices().at(triangle.getVertex(0)).getPos();
+	Vec3Df B = mesh.getVertices().at(triangle.getVertex(1)).getPos();
+	Vec3Df C = mesh.getVertices().at(triangle.getVertex(2)).getPos();
+	Vec3Df AB = Vec3Df::segment(A,B);
+	Vec3Df AC = Vec3Df::segment(A,C);
 
+	//Calcul du produit vectoriel AB,AC pour obtenir la normale du plan
+	Vec3Df normale = Vec3Df::crossProduct(AB,AC);
+
+	//On résout un système à une équation pour trouver le point d'intersection entre le rayon et le plan que l'on appelera M
+	int d = -(normale[0]*A[0] + normale[1]*A[1]+normale[2]*A[2]);
+	int k = (-normale[0] * RayOrigin[0] - normale[1] * RayOrigin[1] - normale[2] * RayOrigin[2] - d)/
+		(normale[0] * RayDirection[0] + normale[1] * RayDirection[1] + normale[2] * RayDirection[2]);
+
+	int Mx = k * RayDirection[0] + RayOrigin[0];
+	int My = k * RayDirection[1] + RayOrigin[1];
+	int Mz = k * RayDirection[2] + RayDirection[2];
+	//std::cout<<"Mx: "<<Mx<<" My: "<<My<<" Mz:"<<Mz<<"\n";
+	Vec3Df M = Vec3Df(Mx, My, Mz);
+
+	//On cherche si M appartient au Triangle, on résout le système
+	int l = AC[2] * (AC[1] - M[1]) / ( AC[2] * AB[1] + AC[1] * (-AB[2] + M[2] - A[2]));
+	int q = - (l * AB[2] + A[2] - M[2])/AC[2];
+	if (l>0 && q>0)
+	{
+	  intersectionPoint = M;
+	  return true;
+	}
+	else
+	{
+	  return false;
+	}
 }
 

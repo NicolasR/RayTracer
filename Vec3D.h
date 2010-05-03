@@ -221,6 +221,7 @@ public:
         r[2] = b[2] - a[2];
         return r;
     };
+    /* Produit Vectoriel? */
     static inline Vec3D crossProduct(const Vec3D & a, const Vec3D & b) {
         Vec3D result;
         result[0] = a[1] * b[2] - a[2] * b[1];
@@ -228,7 +229,8 @@ public:
         result[2] = a[0] * b[1] - a[1] * b[0];
         return(result);
     }
-    static inline T dotProduct(const Vec3D & a, const Vec3D & b) {
+    /* Produit Scalaire */
+    static inline T dotProduct(const Vec3D & a, const Vec3D & b) { 
         return (a[0] * b[0] + a[1] * b[1] + a[2] * b[2]);
     }
     static inline T squaredDistance (const Vec3D &v1, const Vec3D &v2) {

@@ -59,7 +59,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
             Ray ray (camPos, dir);
             Vec3Df intersectionPoint;
 	    
-	    for (std::vector<Object>::iterator k = objects.begin(); k!= objects.end();++k)
+	    for (std::vector<Object>::iterator k = objects.begin(); k!= objects.end();k++)
 	    {
 		Mesh mesh = (*k).getMesh();
 		std::vector<Triangle> triangles = mesh.getTriangles();
@@ -68,18 +68,19 @@ QImage RayTracer::render (const Vec3Df & camPos,
     		const Vec3Df & minBb = bbox.getMin ();
     		const Vec3Df & maxBb = bbox.getMax ();
     		const Vec3Df rangeBb = maxBb-minBb;
-		/*for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
-		{*/
+		for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
+		{
 		     
             	     //bool hasIntersection = ray.intersect (bbox, intersectionPoint);
-	    	     bool hasIntersection = ray.intersect (bbox, intersectionPoint);
+	    	     bool hasIntersection = ray.intersect_real (mesh, *l,intersectionPoint);
             	     Vec3Df c (backgroundColor);
             	     if (hasIntersection)
                 	     c = 255.f * ((intersectionPoint - minBb) / rangeBb);
             	     image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp (c[0], 0, 255),
                                                        		    clamp (c[1], 0, 255),
                                                        		    clamp (c[2], 0, 255)));
-		//}
+		}
+		std::cout<<"Fin iteration Triangles\n";
             }
 	}
     return image;
