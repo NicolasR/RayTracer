@@ -30,7 +30,7 @@ public:
     inline Vec3Df & getDirection () { return direction; }
 
     bool intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const;
-    bool intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoint, float & t) const;
+    bool intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoint, float & t, float & alpha, float & beta, float & gamma) const;
     float calcBar(Vec3Df A, Vec3Df B, Vec3Df C, float & beta, float & gamma) const;
 private:
     Vec3Df origin;

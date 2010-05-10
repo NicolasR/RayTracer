@@ -61,14 +61,14 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
         }
     return (true);			
 }
-bool Ray::intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoint, float & t) const {
+bool Ray::intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoint, float & t, float & alpha, float & beta, float & gamma) const {
 	Vec3Df Ro = this->getOrigin();
 	Vec3Df Rd = this->getDirection();
 
-	float beta = 0.0;
-	float gamma = 0.0;
+	beta = 0.0;
+	gamma = 0.0;
 	t = calcBar(A,B,C,beta,gamma);
-	float alpha = 1 - beta - gamma;
+	alpha = 1 - beta - gamma;
 	if (beta + gamma < 1 && beta > 0 && gamma > 0)
 	{
 	  float Px = Ro[0] + t * Rd[0];

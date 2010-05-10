@@ -6,7 +6,8 @@
 // *********************************************************
 
 #include "Scene.h"
-
+#include <QApplication>
+#include <QtGui/QMessageBox>
 using namespace std;
 
 static Scene * instance = NULL;

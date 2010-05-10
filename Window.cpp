@@ -40,6 +40,8 @@ using namespace std;
 Window::Window () : QMainWindow (NULL) {
     try {
         viewer = new GLViewer;
+	
+//QMessageBox::information(this, "Titre de la fenêtre", "Bonjour et bienvenue à tous les Zéros !");
     } catch (GLViewer::Exception e) {
         cerr << e.getMessage () << endl;
         exit (1);
