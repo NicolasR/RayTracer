@@ -41,7 +41,7 @@ Window::Window () : QMainWindow (NULL) {
     try {
         viewer = new GLViewer;
 	
-//QMessageBox::information(this, "Titre de la fenêtre", "Bonjour et bienvenue à tous les Zéros !");
+//QMessageBox::information(this, "Titre de la fenêtre", "Test");
     } catch (GLViewer::Exception e) {
         cerr << e.getMessage () << endl;
         exit (1);
@@ -91,8 +91,12 @@ void Window::renderRayImage () {
     float aspectRatio = cam->aspectRatio ();
     unsigned int screenWidth = cam->screenWidth ();
     unsigned int screenHeight = cam->screenHeight ();
-    rayImage = rayTracer->render (camPos, viewDirection, upVector, rightVector,
-                                  fieldOfView, aspectRatio, screenWidth, screenHeight);
+    if (viewer->getRender() == 0)
+      rayImage = rayTracer->render (camPos, viewDirection, upVector, rightVector,
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+    else
+      rayImage = rayTracer->render2 (camPos, viewDirection, upVector, rightVector,
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
     imageLabel->setPixmap (QPixmap::fromImage (rayImage));
     
 }
@@ -160,6 +164,16 @@ void Window::initControlWidget () {
     QPushButton * rayButton = new QPushButton ("Render", rayGroupBox);
     rayLayout->addWidget (rayButton);
     connect (rayButton, SIGNAL (clicked ()), this, SLOT (renderRayImage ()));
+
+    QButtonGroup * rendermodeButtonGroup = new QButtonGroup (rayGroupBox);
+    rendermodeButtonGroup->setExclusive (true);
+    QRadioButton * InterButton = new QRadioButton ("Intersection", rayGroupBox);
+    QRadioButton * PhongButton = new QRadioButton ("Phong", rayGroupBox);
+    rendermodeButtonGroup->addButton (InterButton, static_cast<int>(GLViewer::Flat));
+    rendermodeButtonGroup->addButton (PhongButton, static_cast<int>(GLViewer::Smooth));
+    connect (rendermodeButtonGroup, SIGNAL (buttonClicked (int)), viewer, SLOT (setRender (int)));
+    rayLayout->addWidget (InterButton);
+    rayLayout->addWidget (PhongButton);
 
     QPushButton * saveButton  = new QPushButton ("Save", rayGroupBox);
     connect (saveButton, SIGNAL (clicked ()) , this, SLOT (exportRayImage ()));

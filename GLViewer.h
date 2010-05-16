@@ -39,6 +39,8 @@ public:
 public slots :
     void setWireframe (bool b);
     void setRenderingMode (int m);
+    void setRender(int n);
+    int getRender();
     
 protected :
     void init();
@@ -50,7 +52,8 @@ protected :
 
 private:
     bool wireframe;
-    RenderingMode renderingMode; 
+    RenderingMode renderingMode;
+    int render;
 };
 
 #endif // GLVIEWER_H

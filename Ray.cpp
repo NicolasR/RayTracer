@@ -94,9 +94,10 @@ float Ray::calcBar(Vec3Df A, Vec3Df B, Vec3Df C, float & beta, float & gamma) co
 	float dA = (AB[0] * (AC[1] * Rd[2] - Rd[1] * AC[2]))
 		 - (AB[1] * (AC[0] * Rd[2] - Rd[0] * AC[2]))
 		 + (AB[2] * (AC[0] * Rd[1] - Rd[0] * AC[1]));
+	
 
 	beta = (
-	          (ARo[0] * (AC[1] * Rd[2] - Rd[1] * AC[2]))
+	    (ARo[0] * (AC[1] * Rd[2] - Rd[1] * AC[2]))
 		- (ARo[1] * (AC[0] * Rd[2] - Rd[0] * AC[2]))
 		+ (ARo[2] * (AC[0] * Rd[1] - Rd[0] * AC[1]))
 	       )/dA;

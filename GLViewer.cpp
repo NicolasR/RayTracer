@@ -40,6 +40,14 @@ void GLViewer::setRenderingMode (int m) {
     updateGL ();
 }
 
+void GLViewer::setRender (int n) {
+    render = n;
+}
+
+int GLViewer::getRender(){
+    return render;
+}
+
 QString GLViewer::helpString() const {
   QString text("<h2>Raymini</h2>");
   text += "Author: <b>Tamy Boubekeur</b> (boubek@gmail.com)<br>Version: 0.1<br<br>";

@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'GLViewer.h'
 **
-** Created: Sat May 1 16:30:41 2010
+** Created: Fri May 14 00:31:34 2010
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,20 +23,23 @@ static const uint qt_meta_data_GLViewer[] = {
        1,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   10, // methods
+       4,   10, // methods
        0,    0, // properties
        0,    0, // enums/sets
 
  // slots: signature, parameters, type, tag, flags
       12,   10,    9,    9, 0x0a,
       33,   31,    9,    9, 0x0a,
+      57,   55,    9,    9, 0x0a,
+      76,    9,   72,    9, 0x0a,
 
        0        // eod
 };
 
 static const char qt_meta_stringdata_GLViewer[] = {
     "GLViewer\0\0b\0setWireframe(bool)\0m\0"
-    "setRenderingMode(int)\0"
+    "setRenderingMode(int)\0n\0setRender(int)\0"
+    "int\0getRender()\0"
 };
 
 const QMetaObject GLViewer::staticMetaObject = {
@@ -66,8 +69,11 @@ int GLViewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         switch (_id) {
         case 0: setWireframe((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 1: setRenderingMode((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 2: setRender((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 3: { int _r = getRender();
+            if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
         }
-        _id -= 2;
+        _id -= 4;
     }
     return _id;
 }

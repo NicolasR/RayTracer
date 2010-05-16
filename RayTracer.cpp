@@ -32,7 +32,7 @@ inline int clamp (float f, int inf, int sup) {
 // POINT D'ENTREE DU PROJET.
 // Le code suivant ray trace uniquement la boite englobante de la scene.
 // Il faut remplacer ce code par une veritable raytracer
-QImage RayTracer::render2 (const Vec3Df & camPos,
+QImage RayTracer::render (const Vec3Df & camPos,
                           const Vec3Df & direction,
                           const Vec3Df & upVector,
                           const Vec3Df & rightVector,
@@ -53,7 +53,6 @@ QImage RayTracer::render2 (const Vec3Df & camPos,
     for (unsigned int i = 0; i < screenWidth; i++)
     {
 
-        //std::cout<<i<<"\n";	
         for (unsigned int j = 0; j < screenHeight; j++) {
 	          float tanX = tan (fieldOfView);
             float tanY = tanX/aspectRatio;
@@ -102,14 +101,13 @@ QImage RayTracer::render2 (const Vec3Df & camPos,
                                                        	       clamp (c[2], 0, 255)));
 	              found = false;
 	          }
-	  //std::cout<<j<<"\n";
         }
 	  }
     return image;
 }
 
 
-QImage RayTracer::render (const Vec3Df & camPos,
+QImage RayTracer::render2 (const Vec3Df & camPos,
                           const Vec3Df & direction,
                           const Vec3Df & upVector,
                           const Vec3Df & rightVector,
@@ -140,8 +138,8 @@ QImage RayTracer::render (const Vec3Df & camPos,
             dir.normalize ();
             Ray ray (camPos, dir);
             Vec3Df intersectionPoint;
-	          float Px, Py, Pz; Vec3Df test;
-    	      float tmin=777, t, alpha=0., beta=0., gamma=0.;
+	          Vec3Df intersectionPointMin;
+    	      float tmin=777, t=778, alpha=0., beta=0., gamma=0.;
     	      Vec3Df Na;
             Vec3Df Nb;
             Vec3Df Nc;
@@ -156,7 +154,6 @@ QImage RayTracer::render (const Vec3Df & camPos,
 		            for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
 		            {
 
-            	     //bool hasIntersection = ray.intersect (bbox, intersectionPoint);
 		                const Vec3Df & A = mesh.getVertices().at((*l).getVertex(0)).getPos();
 		                const Vec3Df & B = mesh.getVertices().at((*l).getVertex(1)).getPos();
 		                const Vec3Df & C = mesh.getVertices().at((*l).getVertex(2)).getPos();
@@ -164,7 +161,7 @@ QImage RayTracer::render (const Vec3Df & camPos,
             	      if (hasIntersection && t <tmin)
 		                {
 			                  tmin = t;		
-			                  test = intersectionPoint;
+			                  intersectionPointMin = intersectionPoint;
 			                  obj = (*k);
 			                  Na = mesh.getVertices().at((*l).getVertex(0)).getNormal();
                         Nb = mesh.getVertices().at((*l).getVertex(1)).getNormal();
@@ -180,50 +177,40 @@ QImage RayTracer::render (const Vec3Df & camPos,
 	          {
 	              std::vector<Light> lights = scene->getLights();
                 int nb = 0;
-                Vec3Df posL, colorL, Li, R, S;
-                float I = 0;
-                float iL;
-                float Id, Is;  
                 float kd = obj.getMaterial().getDiffuse();
                 float ks = obj.getMaterial().getSpecular();
                 c = obj.getMaterial().getColor();
-                Vec3Df normale = (alpha * Na) + (beta * Nb) + (gamma * Nc);
-                //std::cout << "  normale "  << normale << std::endl;
+                Vec3Df normale = alpha * Na + beta * Nb + gamma * Nc;
                 normale.normalize();
                 for (std::vector<Light>::iterator m = lights.begin(); m != lights.end(); m++)
                 {
+                    Vec3Df posL, colorL, Li, R, S;
+                    float I = 0;
+                    float iL = 0;
+                    float Id = 0, Is = 0;  
                     posL = (*m).getPos();
                     colorL = (*m).getColor();
                     iL = (*m).getIntensity();
-                    Li = posL-intersectionPoint;
+                    Li = posL-intersectionPointMin;
                     Li.normalize();
                     Id = kd * Vec3Df::dotProduct(normale, Li) * iL;
-                    R = 2*(Vec3Df::dotProduct(Li,normale))*normale - Li;
+                    R = Li - 2*(Vec3Df::dotProduct(Li,normale))*normale;
                     R.normalize();
-                    S = camPos - intersectionPoint;
+                    S = camPos - intersectionPointMin;
                     S.normalize();
-                    Is = ks * pow(Vec3Df::dotProduct(S, R), 15) * iL;
+                    Is = ks * pow(Vec3Df::dotProduct(S, R), 20) * iL;
                   
                     if(Id>0){
-                      I += Id ;                                  
+                      I += Id + Is ;                                  
                       nb++;
                     }
                     c = c*colorL*I;
-                }                        
+                }
                 c = c/nb;
                 
-                      //c=   Vec3Df(255,0.,0.);
-               // std::cout << "  c "  << c << std::endl;
-
-	              //Px = camPos[0] + tmin * dir[0];
-	              //Py = camPos[1] + tmin * dir[1];
-	              //Pz = camPos[2] + tmin * dir[2];
-
-                //c = 255.f * ((Vec3Df(Px, Py, Pz) - minBb) / rangeBb);
-	              image.setPixel (i, ((screenHeight-1)-j), qRgb (c[0]*255, c[1]*255, c[2]*255));
+	              image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp(c[0]*255,0,255), clamp(c[1]*255,0,255), clamp(c[2]*255,0,255)));
 	              found = false;
 	          }
-	  //std::cout<<j<<"\n";
         }
 	  }
     return image;
