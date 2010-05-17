@@ -41,7 +41,6 @@ Window::Window () : QMainWindow (NULL) {
     try {
         viewer = new GLViewer;
 	
-//QMessageBox::information(this, "Titre de la fenêtre", "Test");
     } catch (GLViewer::Exception e) {
         cerr << e.getMessage () << endl;
         exit (1);
@@ -94,8 +93,14 @@ void Window::renderRayImage () {
     if (viewer->getRender() == 0)
       rayImage = rayTracer->render (camPos, viewDirection, upVector, rightVector,
                                     fieldOfView, aspectRatio, screenWidth, screenHeight);
-    else
+    else if (viewer->getRender() == 1)
       rayImage = rayTracer->render2 (camPos, viewDirection, upVector, rightVector,
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+    else if (viewer->getRender() == 2)
+      rayImage = rayTracer->render3 (camPos, viewDirection, upVector, rightVector,
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+    else
+      rayImage = rayTracer->render4 (camPos, viewDirection, upVector, rightVector,
                                     fieldOfView, aspectRatio, screenWidth, screenHeight);
     imageLabel->setPixmap (QPixmap::fromImage (rayImage));
     
@@ -168,12 +173,18 @@ void Window::initControlWidget () {
     QButtonGroup * rendermodeButtonGroup = new QButtonGroup (rayGroupBox);
     rendermodeButtonGroup->setExclusive (true);
     QRadioButton * InterButton = new QRadioButton ("Intersection", rayGroupBox);
-    QRadioButton * PhongButton = new QRadioButton ("Phong", rayGroupBox);
-    rendermodeButtonGroup->addButton (InterButton, static_cast<int>(GLViewer::Flat));
-    rendermodeButtonGroup->addButton (PhongButton, static_cast<int>(GLViewer::Smooth));
+    QRadioButton * PhongButton = new QRadioButton ("Phong (BRDF)", rayGroupBox);
+    QRadioButton * Ombre1Button = new QRadioButton ("Ombres dures", rayGroupBox);
+    QRadioButton * Ombre2Button = new QRadioButton ("Ombres douces", rayGroupBox);
+    rendermodeButtonGroup->addButton (InterButton, static_cast<int>(GLViewer::Inter));
+    rendermodeButtonGroup->addButton (PhongButton, static_cast<int>(GLViewer::Phong));
+    rendermodeButtonGroup->addButton (Ombre1Button, static_cast<int>(GLViewer::Ombre1));
+    rendermodeButtonGroup->addButton (Ombre2Button, static_cast<int>(GLViewer::Ombre2));
     connect (rendermodeButtonGroup, SIGNAL (buttonClicked (int)), viewer, SLOT (setRender (int)));
     rayLayout->addWidget (InterButton);
     rayLayout->addWidget (PhongButton);
+    rayLayout->addWidget (Ombre1Button);
+    rayLayout->addWidget (Ombre2Button);
 
     QPushButton * saveButton  = new QPushButton ("Save", rayGroupBox);
     connect (saveButton, SIGNAL (clicked ()) , this, SLOT (exportRayImage ()));

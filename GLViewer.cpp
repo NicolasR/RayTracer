@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cassert>
 #include <string>
+#include <QMessageBox>
 
 using namespace std;
 
@@ -41,7 +42,15 @@ void GLViewer::setRenderingMode (int m) {
 }
 
 void GLViewer::setRender (int n) {
-    render = n;
+    render = static_cast<Render>(n);
+}
+
+void GLViewer::setUseBackground (bool c) {
+    useBackground = c;
+}
+
+bool GLViewer::getUseBackground () {
+    return useBackground;
 }
 
 int GLViewer::getRender(){
@@ -90,7 +99,9 @@ void GLViewer::init() {
     glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     glEnable (GL_POINT_SMOOTH);
 
+    //int result = QMessageBox::question(this, "RayTracer", "Utiliser le fond?", QMessageBox::Yes | QMessageBox::No);
     Scene * scene = Scene::getInstance ();
+    //bool useBackground = (result == QMessageBox::Yes);
 
     glLoadIdentity ();
     

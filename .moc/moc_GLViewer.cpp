@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Meta object code from reading C++ file 'GLViewer.h'
 **
-** Created: Fri May 14 00:31:34 2010
+** Created: Mon May 17 18:38:17 2010
 **      by: The Qt Meta Object Compiler version 59 (Qt 4.4.3)
 **
 ** WARNING! All changes made in this file will be lost!
@@ -23,7 +23,7 @@ static const uint qt_meta_data_GLViewer[] = {
        1,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   10, // methods
+       6,   10, // methods
        0,    0, // properties
        0,    0, // enums/sets
 
@@ -31,7 +31,9 @@ static const uint qt_meta_data_GLViewer[] = {
       12,   10,    9,    9, 0x0a,
       33,   31,    9,    9, 0x0a,
       57,   55,    9,    9, 0x0a,
-      76,    9,   72,    9, 0x0a,
+      74,   72,    9,    9, 0x0a,
+     102,    9,   97,    9, 0x0a,
+     125,    9,  121,    9, 0x0a,
 
        0        // eod
 };
@@ -39,7 +41,8 @@ static const uint qt_meta_data_GLViewer[] = {
 static const char qt_meta_stringdata_GLViewer[] = {
     "GLViewer\0\0b\0setWireframe(bool)\0m\0"
     "setRenderingMode(int)\0n\0setRender(int)\0"
-    "int\0getRender()\0"
+    "c\0setUseBackground(bool)\0bool\0"
+    "getUseBackground()\0int\0getRender()\0"
 };
 
 const QMetaObject GLViewer::staticMetaObject = {
@@ -70,10 +73,13 @@ int GLViewer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
         case 0: setWireframe((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 1: setRenderingMode((*reinterpret_cast< int(*)>(_a[1]))); break;
         case 2: setRender((*reinterpret_cast< int(*)>(_a[1]))); break;
-        case 3: { int _r = getRender();
+        case 3: setUseBackground((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 4: { bool _r = getUseBackground();
+            if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = _r; }  break;
+        case 5: { int _r = getRender();
             if (_a[0]) *reinterpret_cast< int*>(_a[0]) = _r; }  break;
         }
-        _id -= 4;
+        _id -= 6;
     }
     return _id;
 }

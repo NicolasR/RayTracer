@@ -61,6 +61,10 @@ bool Ray::intersect (const BoundingBox & bbox, Vec3Df & intersectionPoint) const
         }
     return (true);			
 }
+
+/*Intersection avec la rayon
+  A besoin des sommets du triangle
+  Renvoie le point d'intersection, la distance t et les coordonnées barycentriques*/
 bool Ray::intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoint, float & t, float & alpha, float & beta, float & gamma) const {
 	Vec3Df Ro = this->getOrigin();
 	Vec3Df Rd = this->getDirection();
@@ -74,9 +78,6 @@ bool Ray::intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoi
 	  float Px = Ro[0] + t * Rd[0];
 	  float Py = Ro[1] + t * Rd[1];
 	  float Pz = Ro[2] + t * Rd[2];
-	  //std::cout<<"beta: "<<beta<<" gamma: "<<gamma<<"\n";
-//	  std::cout<<"t: "<<t<<"\n";
-//std::cout<<"Px: "<<Px<<" Py: "<<Py<<" Pz:"<<Pz<<"\n";
 	  intersectionPoint = Vec3Df(Px, Py, Pz);
 	  return true;
 	}	
@@ -84,6 +85,8 @@ bool Ray::intersect_real (Vec3Df A, Vec3Df B, Vec3Df C, Vec3Df & intersectionPoi
 	  return false;
 }
 
+/*
+  Calcul des coordonnées barycentriques*/
 float Ray::calcBar(Vec3Df A, Vec3Df B, Vec3Df C, float & beta, float & gamma) const{
 	Vec3Df Ro = this->getOrigin();
 	Vec3Df Rd = this->getDirection();

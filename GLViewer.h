@@ -20,7 +20,7 @@ class GLViewer : public QGLViewer  {
 public:
     
     typedef enum {Flat=0, Smooth=1} RenderingMode;
-    
+    typedef enum {Inter=0, Phong=1, Ombre1=2, Ombre2=3} Render;
     GLViewer ();
     virtual ~GLViewer ();
     
@@ -40,6 +40,8 @@ public slots :
     void setWireframe (bool b);
     void setRenderingMode (int m);
     void setRender(int n);
+    void setUseBackground(bool c);
+    bool getUseBackground();
     int getRender();
     
 protected :
@@ -53,7 +55,8 @@ protected :
 private:
     bool wireframe;
     RenderingMode renderingMode;
-    int render;
+    Render render;
+    int useBackground;
 };
 
 #endif // GLVIEWER_H

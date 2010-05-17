@@ -1,0 +1,61 @@
+\documentclass[a4paper,11pt,titlepage]{article}
+\usepackage[utf8]{inputenc} %support de l'utf8
+%\usepackage[T1]{fontenc} %support des accents
+\usepackage[francais]{babel} %support de la langue
+
+\title{AGM\\Moteur de Rendu en Lancé de Rayon}
+\author{Pauline CHAMOREAU \and Nicolas RIGNAULT}
+
+
+\begin{document}
+\maketitle
+
+\newpage
+\section{Partie 1}
+
+\subsection{Intersection (1.a)}
+
+Pour calculer l'intersection du rayon avec la géométrie de la scène, on itère sur tous les triangles composants cette scène (on itère donc sur tous les objets de la scène pour récupérer tous les triangles). Pour chaque triangle, on appelle la méthode \textit{intersect\_real} qui vérifie s'il y a une intersection entre le triangle et le rayon via le calcul des coordonnées barycentriques du triangle (voir \textbf{Ray.cpp}).
+
+Si beta + gamma $<$ 1 \&\& beta $>$ 0 \&\& gamma $>$ 0 alors c'est qu'il y a bien intersection entre le rayon et le triangle. On stocke donc les coordonnées barycentriques ainsi que la distance t entre le rayon et le triangle. On continue l'itération afin de rechercher le triangle au premier plan de la scène, pour chaque pixel (on cherche donc le plus petit t). Une fois ce triangle trouvé, on lui affecte une couleur.\\
+
+Tout le code se trouve dans la méthode \textit{render} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+
+\subsection{BRDF de Phong (1.b)}
+
+Pour calculer l'intensité lumineuse avec la BRDF de Phong, nous avons utilisé la formule $I = I_d + I_s$, $I_d$ représentant la partie diffuse de l'intensité lumineuse et $I_s$ la partie spéculaire. \\
+
+Les calculs de $I_d$ et $I_s$ se font à l'aide les formules suivantes : \\
+$I_d = k_d(\vec N \cdot \vec L)I_L$ avec 
+\begin{itemize}
+ \item[$k_d$ :] coefficient de reflectivité à la lumière diffuse, attribut du matériel de l'objet.
+ \item[$\vec N$ :] vecteur normal à la surface, calculé à l'aide des coordonnées barycentriques du point d'intersection et des vecteurs normaux aux sommets du triangle.
+ \item[$\vec L$ :] vecteur directeur de la lumière, attribut de la classe \textit{Light}
+ \item[$I_L$ :] coefficient d'intensité de la lumière, aussi attribut de la classe \textit{Light}.\\
+\end{itemize}
+et $I_s = k_s(\vec S \cdot \vec R)^nI_L$ avec : 
+\begin{itemize}
+ \item[$k_s$ :] coefficient de reflectivité à la lumière spéculaire, attribut du matériel de l'objet.
+ \item[$\vec S$ :] vecteur directeur de la caméra, paramètre de la fonction \textit{render}.
+ \item[$\vec R$ :] vecteur directeur du rayon réfléchi, calculé avec la formule\\ $\vec R = 2(\vec L \cdot \vec N)\vec N - \vec L$.
+ \item[$I_L$ :] coefficient d'intensité de la lumière, attribut de la classe \textit{Light}.\\
+\end{itemize}
+
+
+Pour tout pixel contenant un point d'intersection, ces calculs sont effectués pour chacune des lumières de la scène. Le $I$ calculé pour une lumière est multiplié par sa couleur ainsi que par la couleur de l'objet.\\
+Pour finir, on calcule la moyenne des résultats trouvés ce qui donne la couleur effective du pixel concerné qui peut ainsi lui être appliquée.\\
+
+Tout le code se trouve dans la méthode \textit{render2} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles et le calcul de la couleur de l'objet) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+
+\newpage
+\section{Partie 2}
+
+\subsection{Ombres Dures (2.a)}
+
+On garde ce qui a été fait pour la BRDF de Phong. Cependant, pour chaque triangle au premier plan (donc pour chaque triangle qui intersecte le rayon et donc la distance à ce même rayon est minimale), on lance un deuxième rayon depuis l'origine de la lumière, en direction du triangle en question. On vérifie s'il y a une intersection entre ce triangle et le rayon que l'on vient de lancer (intersection qui doit se trouver devant le triangle).
+
+Si on trouve bel et bien une intersection, alors le triangle est caché et on doit générer une ombre (on change la couleur du pixel). Sinon, on garde la couleur associée au triangle.\\
+
+Tout le code se trouve dans la méthode \textit{render3} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles et le calcul de la couleur de l'objet ainsi que des ombres) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+
+\end{document}
