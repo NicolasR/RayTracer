@@ -17,9 +17,11 @@
 
 Pour calculer l'intersection du rayon avec la géométrie de la scène, on itère sur tous les triangles composants cette scène (on itère donc sur tous les objets de la scène pour récupérer tous les triangles). Pour chaque triangle, on appelle la méthode \textit{intersect\_real} qui vérifie s'il y a une intersection entre le triangle et le rayon via le calcul des coordonnées barycentriques du triangle (voir \textbf{Ray.cpp}).
 
-Si beta + gamma $<$ 1 \&\& beta $>$ 0 \&\& gamma $>$ 0 alors c'est qu'il y a bien intersection entre le rayon et le triangle. On stocke donc les coordonnées barycentriques ainsi que la distance t entre le rayon et le triangle. On continue l'itération afin de rechercher le triangle au premier plan de la scène, pour chaque pixel (on cherche donc le plus petit t). Une fois ce triangle trouvé, on lui affecte une couleur.\\
+Si $\beta + \gamma < 1$ et $\beta > 0$ et $\gamma > 0$ alors c'est qu'il y a bien intersection entre le rayon et le triangle. On stocke donc les coordonnées barycentriques ainsi que la distance t entre le rayon et le triangle. On continue l'itération afin de rechercher le triangle au premier plan de la scène, pour chaque pixel (on cherche donc le plus petit t). Une fois ce triangle trouvé, on lui affecte une couleur.\\
 
-Tout le code se trouve dans la méthode \textit{render} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+Pour pouvoir utiliser ce mode, il faut cocher ``Intersection''.\\
+
+Tout le code associé se trouve dans la méthode \textit{render} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
 
 \subsection{BRDF de Phong (1.b)}
 
@@ -45,7 +47,9 @@ et $I_s = k_s(\vec S \cdot \vec R)^nI_L$ avec :
 Pour tout pixel contenant un point d'intersection, ces calculs sont effectués pour chacune des lumières de la scène. Le $I$ calculé pour une lumière est multiplié par sa couleur ainsi que par la couleur de l'objet.\\
 Pour finir, on calcule la moyenne des résultats trouvés ce qui donne la couleur effective du pixel concerné qui peut ainsi lui être appliquée.\\
 
-Tout le code se trouve dans la méthode \textit{render2} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles et le calcul de la couleur de l'objet) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+Pour pouvoir utiliser ce mode, il faut cocher ``Phong (BRDF)''.\\
+
+Tout le code associé se trouve dans la méthode \textit{render2} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles et le calcul de la couleur de l'objet) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
 
 \newpage
 \section{Partie 2}
@@ -56,6 +60,32 @@ On garde ce qui a été fait pour la BRDF de Phong. Cependant, pour chaque trian
 
 Si on trouve bel et bien une intersection, alors le triangle est caché et on doit générer une ombre (on change la couleur du pixel). Sinon, on garde la couleur associée au triangle.\\
 
-Tout le code se trouve dans la méthode \textit{render3} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles et le calcul de la couleur de l'objet ainsi que des ombres) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+Pour pouvoir utiliser ce mode, il faut cocher ``Ombres dures''.\\
+
+Tout le code associé se trouve dans la méthode \textit{render3} du fichier \textbf{RayTracer.cpp} (pour l'itération sur les triangles et le calcul de la couleur de l'objet ainsi que des ombres) et dans la méthode \textit{intersect\_real} du fichier \textbf{Ray.cpp} (pour le calcul de point d'intersection).
+
+\section{Manuel}
+
+L'interface du RayTracer a été modifiée afin de pouvoir être manipulée facilement. Au lancement du programme, il faut donc faire plusieurs choix:
+\begin{itemize}
+ \item Activation ou non de la Haute Définition (très lent)
+ \item Utilisation du plan où reposent le(s) objet(s)
+ \item Choix de la scène (Bélier ou Sphère)\\
+\end{itemize}
+
+L'activation des différentes méthodes de rendu se fait ensuite via la sélection des boutons se trouvant sous le bouton ``Render'':
+\begin{itemize}
+ \item ``Intersection'': rendu correspondant à la question 1.a
+ \item ``Phong (BRDF)'': rendu correspondant à la question 1.b
+ \item ``Ombres dures'': rendu correspondant à la question 2.a
+\end{itemize}
+
+\section{Meilleur rendu}
+
+Le meilleur rendu que nous somme parvenus à obtenir est celui pour les Ombres dures.
+Le KD-Tree n'a pas été implémenté et le rendu avec Ombres douces ne fonctionne pas correctement.
+
+[IMAGE]
+
 
 \end{document}
