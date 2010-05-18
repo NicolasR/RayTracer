@@ -90,18 +90,19 @@ void Window::renderRayImage () {
     float aspectRatio = cam->aspectRatio ();
     unsigned int screenWidth = cam->screenWidth ();
     unsigned int screenHeight = cam->screenHeight ();
+    GLViewer & v = *viewer;
     if (viewer->getRender() == 0)
       rayImage = rayTracer->render (camPos, viewDirection, upVector, rightVector,
-                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight,v);
     else if (viewer->getRender() == 1)
       rayImage = rayTracer->render2 (camPos, viewDirection, upVector, rightVector,
-                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight,v);
     else if (viewer->getRender() == 2)
       rayImage = rayTracer->render3 (camPos, viewDirection, upVector, rightVector,
-                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight,v);
     else
       rayImage = rayTracer->render4 (camPos, viewDirection, upVector, rightVector,
-                                    fieldOfView, aspectRatio, screenWidth, screenHeight);
+                                    fieldOfView, aspectRatio, screenWidth, screenHeight,v);
     imageLabel->setPixmap (QPixmap::fromImage (rayImage));
     
 }

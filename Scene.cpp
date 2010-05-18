@@ -6,15 +6,14 @@
 // *********************************************************
 
 #include "Scene.h"
-#include <QApplication>
-#include <QtGui/QMessageBox>
+
 using namespace std;
 
 static Scene * instance = NULL;
 
-Scene * Scene::getInstance () {
+Scene * Scene::getInstance (bool HD, bool useBackGround, int scene) {
     if (instance == NULL)
-        instance = new Scene ();
+        instance = new Scene (HD, useBackGround, scene);
     return instance;
 }
 
@@ -25,8 +24,8 @@ void Scene::destroyInstance () {
     }
 }
 
-Scene::Scene () {
-    buildDefaultScene (false);
+Scene::Scene (bool HD, bool useBackGround, int scene) {
+    buildDefaultScene (HD,useBackGround,scene);
     updateBoundingBox ();
 }
 
@@ -44,21 +43,33 @@ void Scene::updateBoundingBox () {
 }
 
 // Changer ce code pour créer des scènes originales
-void Scene::buildDefaultScene (bool HD) {
+void Scene::buildDefaultScene (bool HD, bool useBackGround, int scene) {
     Mesh groundMesh;
-    if (HD)
+    if (useBackGround)
+    {
+      if (HD)
         groundMesh.loadOFF ("models/ground_HD.off");
-    else
+      else
         groundMesh.loadOFF ("models/ground.off");
+    }
     Material groundMat;
     Object ground (groundMesh, groundMat);    
     objects.push_back (ground);
     Mesh ramMesh;
-    /*if (HD)
-        ramMesh.loadOFF ("models/ram_HD.off");
-    else
-        ramMesh.loadOFF ("models/ram.off");*/
-    ramMesh.loadOFF ("models/sphere.off");
+    
+    switch(scene){
+      case 1:
+        if (HD)
+          ramMesh.loadOFF ("models/ram_HD.off");
+        else
+          ramMesh.loadOFF ("models/ram.off");
+        break;
+      case 2:
+        ramMesh.loadOFF ("models/sphere.off");
+        break;
+      default:
+        ramMesh.loadOFF ("models/sphere.off");
+    }
     Material ramMat (1.f, 1.f, Vec3Df (1.f, .6f, .2f));
     Object ram (ramMesh, ramMat);    
     objects.push_back (ram);

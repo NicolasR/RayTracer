@@ -17,7 +17,7 @@
 
 class Scene {
 public:
-    static Scene * getInstance ();
+    static Scene * getInstance (bool HD, bool useBackGround, int scene);
     static void destroyInstance ();
     
     inline std::vector<Object> & getObjects () { return objects; }
@@ -30,11 +30,11 @@ public:
     void updateBoundingBox ();
     
 protected:
-    Scene ();
+    Scene (bool HD, bool useBackGround, int scene);
     virtual ~Scene ();
     
 private:
-    void buildDefaultScene (bool HD);
+    void buildDefaultScene (bool HD, bool useBackGround, int scene);
     std::vector<Object> objects;
     std::vector<Light> lights;
     BoundingBox bbox;

@@ -40,8 +40,12 @@ public slots :
     void setWireframe (bool b);
     void setRenderingMode (int m);
     void setRender(int n);
-    void setUseBackground(bool c);
-    bool getUseBackground();
+    void setHD(bool c){ HD = c;}
+    bool getHD(){ return HD;}
+    void setUseBackground(bool c){ useBackground = c;}
+    bool getUseBackground(){ return useBackground;}
+    void setScene(int c){ scene = c;}
+    bool getScene(){ return scene;}
     int getRender();
     
 protected :
@@ -56,7 +60,9 @@ private:
     bool wireframe;
     RenderingMode renderingMode;
     Render render;
-    int useBackground;
+    bool HD;
+    bool useBackground;
+    int scene;
 };
 
 #endif // GLVIEWER_H

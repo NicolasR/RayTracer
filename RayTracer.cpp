@@ -37,10 +37,14 @@ QImage RayTracer::render (const Vec3Df & camPos,
                           float fieldOfView,
                           float aspectRatio,
                           unsigned int screenWidth,
-                          unsigned int screenHeight) {
+                          unsigned int screenHeight,
+                          GLViewer& viewer) {
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
     
-    Scene * scene = Scene::getInstance ();
+    bool HD = viewer.getHD();
+    bool useBackGround = viewer.getUseBackground();
+    bool useScene = viewer.getScene();
+    Scene * scene = Scene::getInstance (HD, useBackGround, useScene);
     std::vector<Object> objects = scene->getObjects();
     const BoundingBox & bbox = scene->getBoundingBox ();
     const Vec3Df & minBb = bbox.getMin ();
@@ -113,10 +117,14 @@ QImage RayTracer::render2 (const Vec3Df & camPos,
                           float fieldOfView,
                           float aspectRatio,
                           unsigned int screenWidth,
-                          unsigned int screenHeight) {
+                          unsigned int screenHeight,
+                          GLViewer& viewer) {
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
     
-    Scene * scene = Scene::getInstance ();
+    bool HD = viewer.getHD();
+    bool useBackGround = viewer.getUseBackground();
+    bool useScene = viewer.getScene();
+    Scene * scene = Scene::getInstance (HD, useBackGround, useScene);
     std::vector<Object> objects = scene->getObjects();
     const BoundingBox & bbox = scene->getBoundingBox ();
     const Vec3Df & minBb = bbox.getMin ();
@@ -236,10 +244,14 @@ QImage RayTracer::render3 (const Vec3Df & camPos,
                           float fieldOfView,
                           float aspectRatio,
                           unsigned int screenWidth,
-                          unsigned int screenHeight) {
+                          unsigned int screenHeight,
+                          GLViewer& viewer) {
     QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
     
-    Scene * scene = Scene::getInstance ();
+    bool HD = viewer.getHD();
+    bool useBackGround = viewer.getUseBackground();
+    bool useScene = viewer.getScene();
+    Scene * scene = Scene::getInstance (HD, useBackGround, useScene);
     std::vector<Object> objects = scene->getObjects();
     const BoundingBox & bbox = scene->getBoundingBox ();
     const Vec3Df & minBb = bbox.getMin ();
@@ -383,8 +395,190 @@ QImage RayTracer::render3 (const Vec3Df & camPos,
     return image;
 }
 
-//Ombres Dures (question 2.a)
+//Ombres Douces (question 2.b)
 QImage RayTracer::render4 (const Vec3Df & camPos,
+                          const Vec3Df & direction,
+                          const Vec3Df & upVector,
+                          const Vec3Df & rightVector,
+                          float fieldOfView,
+                          float aspectRatio,
+                          unsigned int screenWidth,
+                          unsigned int screenHeight,
+                          GLViewer& viewer) {
+    QImage image (QSize (screenWidth, screenHeight), QImage::Format_RGB888);
+    
+    bool HD = viewer.getHD();
+    bool useBackGround = viewer.getUseBackground();
+    bool useScene = viewer.getScene();
+    Scene * scene = Scene::getInstance (HD, useBackGround, useScene);
+    std::vector<Object> objects = scene->getObjects();
+    const BoundingBox & bbox = scene->getBoundingBox ();
+    const Vec3Df & minBb = bbox.getMin ();
+    const Vec3Df & maxBb = bbox.getMax ();
+    const Vec3Df rangeBb = maxBb-minBb;
+    Vec3Df c (backgroundColor);
+
+    for (unsigned int i = 0; i < screenWidth; i++)
+    {
+
+        for (unsigned int j = 0; j < screenHeight; j++) {
+	          float tanX = tan (fieldOfView);
+            float tanY = tanX/aspectRatio;
+            Vec3Df stepX = (float (i) - screenWidth/2.f)/screenWidth * tanX * rightVector;
+            Vec3Df stepY = (float (j) - screenHeight/2.f)/screenHeight * tanY * upVector;
+            Vec3Df step = stepX + stepY;
+            Vec3Df dir = direction + step;
+            dir.normalize ();
+            Ray ray (camPos, dir);
+            Vec3Df intersectionPoint;
+	          Vec3Df intersectionPointMin;
+    	      float tmin=777, t=778, alpha=0., beta=0., gamma=0.;
+    	      Vec3Df Na;
+            Vec3Df Nb;
+            Vec3Df Nc;
+            float alphaOK = 0.0, betaOK = 0.0, gammaOK = 0.0;
+            Vec3Df AOK, BOK, COK;
+            bool found = false;
+            Object obj;
+	          for (std::vector<Object>::iterator k = objects.begin(); k!= objects.end();k++)
+	          {
+
+		            const Mesh & mesh = (*k).getMesh();
+		            std::vector<Triangle> triangles = mesh.getTriangles();
+		            std::vector<Vertex> vertices = mesh.getVertices();
+		            for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
+		            {
+
+		                const Vec3Df & A = mesh.getVertices().at((*l).getVertex(0)).getPos();
+		                const Vec3Df & B = mesh.getVertices().at((*l).getVertex(1)).getPos();
+		                const Vec3Df & C = mesh.getVertices().at((*l).getVertex(2)).getPos();
+	    	            bool hasIntersection = ray.intersect_real (A,B,C,intersectionPoint,t,alpha,beta,gamma);
+            	      if (hasIntersection && t <tmin)
+		                {
+			                  tmin = t;
+			                  intersectionPointMin = intersectionPoint;
+			                  obj = (*k);
+			                  Na = mesh.getVertices().at((*l).getVertex(0)).getNormal();
+                        Nb = mesh.getVertices().at((*l).getVertex(1)).getNormal();
+                        Nc = mesh.getVertices().at((*l).getVertex(2)).getNormal();
+			                  
+			                  alphaOK = alpha;
+			                  betaOK = beta;
+			                  gammaOK = gamma;
+			                  AOK = A;
+			                  BOK = B;
+			                  COK = C;
+			                  found = true;
+		                }
+            	     
+		            }
+            }
+	          if (found)
+	          {
+	             
+	              std::vector<Light> lights = scene->getLights();
+                int nb = 0;
+                float kd = obj.getMaterial().getDiffuse();
+                float ks = obj.getMaterial().getSpecular();
+                c = Vec3Df(0,0,0);
+                Vec3Df normale = alphaOK * Na + betaOK * Nb + gammaOK * Nc;
+                normale.normalize();
+                for (std::vector<Light>::iterator m = lights.begin(); m != lights.end(); m++)
+                {
+                    Vec3Df posL, colorL, Li, R, S;
+                    float I = 0.0;
+                    float iL = 0.0;
+                    float Is = 0.0;
+                    float Id = 0.0;  
+                    posL = (*m).getPos();
+                    colorL = (*m).getColor();
+                    iL = (*m).getIntensity();
+                    Li = posL-intersectionPointMin;
+                    
+                    bool ombre = false;
+                    
+                    //Remplissage du tableau de rayons
+                    Ray raytab[13];
+                    Vec3Df lighttab[13];
+                    for(float i=posL[0]-1.5;i<4.5;i+=0.5){
+                        int j=0;
+                        Vec3Df posLtemp = Vec3Df(i,posL[1],posL[2]);
+                        Ray raytemp(posLtemp, Li);
+                        raytab[j] = raytemp;
+                        lighttab[j] = posLtemp;
+                        j++;
+                    }
+                    for(float i=posL[1]-1.5;i!=3 && i<4.5;i+=0.5){
+                        int j=7;
+                        Vec3Df posLtemp = Vec3Df(posL[0],i,posL[2]);
+                        Ray raytemp(posLtemp, Li);
+                        raytab[j] = raytemp;
+                        lighttab[j] = posLtemp;
+                        j++;
+                    }
+                    
+                    float fact = 0.0;
+                    float nbfact = 0.0;
+                    for (std::vector<Object>::iterator k = objects.begin(); k!= objects.end();k++)
+	                  {
+
+		                    const Mesh & mesh = (*k).getMesh();
+		                    std::vector<Triangle> triangles = mesh.getTriangles();
+		                    std::vector<Vertex> vertices = mesh.getVertices();
+		                    for (std::vector<Triangle>::iterator l = triangles.begin(); l != triangles.end(); l++)
+		                    {
+
+		                        const Vec3Df & A = mesh.getVertices().at((*l).getVertex(0)).getPos();
+		                        const Vec3Df & B = mesh.getVertices().at((*l).getVertex(1)).getPos();
+		                        const Vec3Df & C = mesh.getVertices().at((*l).getVertex(2)).getPos();
+		                        
+                            for(int i=0;i<13;i++){
+                                Vec3Df IpMinL = intersectionPointMin - lighttab[i]; //Distance entre l'intersection et la lumière
+                                raytab[i].intersect_real (A,B,C,intersectionPoint,t,alpha,beta,gamma);
+                                Vec3Df IpL = IpMinL - (intersectionPoint-lighttab[i]);
+            	                  if (!egale3DFloat(intersectionPoint, intersectionPointMin) && (IpL[0] < 0.0 && IpL[1] < 0.0 && IpL[2] < 0.0))
+		                                fact += 1.0/13.0;
+                            }
+                            nbfact++;
+                            
+                         }
+                     }
+                     if (fact == 0.0)
+		                 {     
+		                     c += Vec3Df(0,0,0);
+		                     nb++;
+		                     ombre = false; 
+		                 }
+		                 else
+		                 {
+			                   Id = kd * Vec3Df::dotProduct(normale, Li) * iL;
+                         R = Li - 2*(Vec3Df::dotProduct(Li,normale))*normale;
+                         R.normalize();
+                         S = camPos - intersectionPointMin;
+                         S.normalize();
+                         Is = ks * pow(Vec3Df::dotProduct(S, R), 20) * iL;
+                  
+                         if(Id>0){
+                            I += Id + Is ;                     
+                            nb++;
+                         }
+                         c += obj.getMaterial().getColor()*colorL*I*(fact/nbfact); 
+                     }
+                }
+                c = c/nb;
+                
+	              image.setPixel (i, ((screenHeight-1)-j), qRgb (clamp(c[0]*255,0,255), clamp(c[1]*255,0,255), clamp(c[2]*255,0,255)));
+	              found = false;
+	          }
+	          else
+	            c = backgroundColor;
+        }
+        std::cout<<i<<std::endl;
+	  }
+    return image;
+}
+//Ombres Dures (question 2.a)
+/*QImage RayTracer::render4 (const Vec3Df & camPos,
                           const Vec3Df & direction,
                           const Vec3Df & upVector,
                           const Vec3Df & rightVector,
@@ -527,7 +721,7 @@ QImage RayTracer::render4 (const Vec3Df & camPos,
                             
                          }
                      }
-                     if (fact/nbfact == 13.0)
+                     if (fact > 0.0)
 		                 {     
 		                     c += Vec3Df(0,0,0);
 		                     nb++;
@@ -560,4 +754,4 @@ QImage RayTracer::render4 (const Vec3Df & camPos,
         std::cout<<i<<std::endl;
 	  }
     return image;
-}
+}*/

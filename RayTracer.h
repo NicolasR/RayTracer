@@ -13,6 +13,7 @@
 #include <QImage>
 
 #include "Vec3D.h"
+#include "GLViewer.h"
 
 class RayTracer {
 public:
@@ -29,7 +30,8 @@ public:
                    float fieldOfView,
                    float aspectRatio,
                    unsigned int screenWidth,
-                   unsigned int screenHeight);
+                   unsigned int screenHeight,
+                          GLViewer& viewer);
                    
     QImage render2 (const Vec3Df & camPos,
                    const Vec3Df & viewDirection,
@@ -38,7 +40,8 @@ public:
                    float fieldOfView,
                    float aspectRatio,
                    unsigned int screenWidth,
-                   unsigned int screenHeight);
+                   unsigned int screenHeight,
+                          GLViewer& viewer);
         
     QImage render3 (const Vec3Df & camPos,
                    const Vec3Df & viewDirection,
@@ -47,7 +50,8 @@ public:
                    float fieldOfView,
                    float aspectRatio,
                    unsigned int screenWidth,
-                   unsigned int screenHeight);
+                   unsigned int screenHeight,
+                          GLViewer& viewer);
                 
     QImage render4 (const Vec3Df & camPos,
                    const Vec3Df & viewDirection,
@@ -56,7 +60,8 @@ public:
                    float fieldOfView,
                    float aspectRatio,
                    unsigned int screenWidth,
-                   unsigned int screenHeight);
+                   unsigned int screenHeight,
+                          GLViewer& viewer);
     
 protected:
     inline RayTracer () {}

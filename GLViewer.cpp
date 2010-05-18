@@ -14,7 +14,8 @@
 #include <cassert>
 #include <string>
 #include <QMessageBox>
-
+#include <QInputDialog>
+#include <QString>
 using namespace std;
 
 static const GLuint OpenGLLightID[] = {GL_LIGHT0, GL_LIGHT1, GL_LIGHT2, GL_LIGHT3, GL_LIGHT4, GL_LIGHT5, GL_LIGHT6, GL_LIGHT7};
@@ -43,14 +44,6 @@ void GLViewer::setRenderingMode (int m) {
 
 void GLViewer::setRender (int n) {
     render = static_cast<Render>(n);
-}
-
-void GLViewer::setUseBackground (bool c) {
-    useBackground = c;
-}
-
-bool GLViewer::getUseBackground () {
-    return useBackground;
 }
 
 int GLViewer::getRender(){
@@ -99,10 +92,25 @@ void GLViewer::init() {
     glHint (GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     glEnable (GL_POINT_SMOOTH);
 
-    //int result = QMessageBox::question(this, "RayTracer", "Utiliser le fond?", QMessageBox::Yes | QMessageBox::No);
-    Scene * scene = Scene::getInstance ();
-    //bool useBackground = (result == QMessageBox::Yes);
-
+    int q1 = QMessageBox::question(this, "RayTracer", "HD activee ?", QMessageBox::Yes | QMessageBox::No);
+    int q2 = QMessageBox::question(this, "RayTracer", "Utiliser le plan ?", QMessageBox::Yes | QMessageBox::No);
+    QStringList scenes;
+    scenes << "Belier" << "Sphere";
+    QString q3 = QInputDialog::getItem(this, "RayTracer", "Choix de la scene:", scenes,0);
+    
+    int res;
+    if (q3 == "Belier")
+      res = 1;
+    else if (q3 == "Sphere")
+      res = 2;
+    else
+      res = 2;
+      
+    HD = (q1==QMessageBox::Yes);
+    useBackground = (q2==QMessageBox::Yes);
+    
+    Scene * scene = Scene::getInstance (HD, useBackground, res);
+    
     glLoadIdentity ();
     
     glEnable (GL_LIGHTING);
@@ -128,7 +136,7 @@ void GLViewer::init() {
 }
 
 void GLViewer::draw () {
-    Scene * scene = Scene::getInstance ();
+    Scene * scene = Scene::getInstance (HD, useBackground, 0);
     for (unsigned int i = 0; i < scene->getObjects ().size (); i++) {
         const Object & o = scene->getObjects ()[i];
         const Material & mat = o.getMaterial ();
